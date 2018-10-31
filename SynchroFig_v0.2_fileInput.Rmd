@@ -17,7 +17,7 @@ http://shiny.rstudio.com/articles/interactive-docs.html
 # Learning Shiny https://shiny.rstudio.com/
 
 # Detailed explanation of this script
-* fileInput() https://shiny.rstudio.com/reference/shiny/0.14/fileInput.html
+* fileInput() https://shiny.rstudio.com/reference/shiny/0.14/fileInput.html and https://shiny.rstudio.com/articles/upload.html
 * DT package for table manupilation in Shiny https://rstudio.github.io/DT/shiny.html
 * 
 
