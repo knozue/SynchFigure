@@ -1,16 +1,3 @@
-####
-##
-##
-##########
-# hitory
-# To do
-## 1. download fig in pdf file
-## 2. more data from other age group
-## 2b. slide years to match up age (option)
-## <hypothesis>
-## 1. Swimmer in SCA became better during summer, while WCA's do not.
-## 2. 
-
 library(shiny)
 library(ggplot2)  # for the diamonds dataset
 library(tidyverse)
@@ -19,7 +6,9 @@ library(lubridate) # for date/time. Read chap 13 in "R for Data Science" by Wkck
 library(directlabels) # for labeling line with name2 by geom_dl https://stackoverflow.com/questions/37667539/add-text-to-geom-line-in-ggplot?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
  
 # read data
+#Fig.data <- read.csv("../Synchro_Figure_score - record.csv")
 Fig.data <- read.csv("Synchro_Figure_score - record.csv")
+
 # general function
 #Vlookup in R (https://gist.github.com/jnmaloof/7367450)
 #Version 0.3 November 12, 2013
@@ -57,8 +46,8 @@ vlookup <- function(ref, #the value or values that you want to look for
   output
 }
 ##
-Fig.data.s<-Fig.data %>% as_tibble() %>% dplyr::mutate(DateTime2=mdy(DateTime,tz=NULL),year=year(DateTime2))
-Fig.data.s<-Fig.data.s %>% mutate(name2=toupper(name))
+Fig.data.s<-Fig.data %>% as_tibble() %>% mutate(DateTime2=mdy(DateTime),year=year(DateTime2))
+Fig.data.s<-Fig.data.s %>% mutate(name2=toupper(name),team=toupper(team))
 Fig.data.s.summary <- Fig.data.s %>% group_by(name2,team) %>% summarise(average=mean(score))
 
 swimmer2006<-Fig.data.s %>% filter(year %in% c(2017, 2018), category %in% "11-12",competition %in% c("Invitational Figures San Francisco","West Region B championships")) %>% 
