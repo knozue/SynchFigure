@@ -6,7 +6,29 @@ output: html_document
 # Shiny widget (v0.2) for Synchro figure score
 http://shiny.rstudio.com/articles/interactive-docs.html
 * Note1: Check "Preview in Window" or "Preview in a Viewer panel". (No preview) gave me nothing after clicking "Run Document" button above. Near future  shiny_presented will be used instead of shiny in runtime (https://rmarkdown.rstudio.com/authoring_shiny_prerendered.html).
+* Usage. Click "Run Document" in RStudio bar for this document. Upload data file "Synchro_Figure_score - record.csv" for example, which can be found in [a Google Sheet with Kazu's permission](https://docs.google.com/spreadsheets/d/1clTOGtDb_YVxVPFGwdAVwa2MIeIPA4hXcbuGHTvACME/edit?usp=sharing).
 
+# Learning R
+* Especially ggplot2 and tidyverse packages, read "R for data science" (2016) Hadley Wickham and Garrett Grolemund (O'reilly)
+
+# Learning RStudio https://www.rstudio.com/
+* Use RStudio DEsktop (free)
+
+# Learning Shiny https://shiny.rstudio.com/
+
+# Detailed explanation of this script
+* fileInput() https://shiny.rstudio.com/reference/shiny/0.14/fileInput.html
+* DT package for table manupilation in Shiny https://rstudio.github.io/DT/shiny.html
+* 
+
+# Bug reports
+* When swimmers swited team (Gianna and Mana), multiple lines for them were not connected and labeld, when legends will be shown by adding show.legend in geom_line. Tentative solution is show.legend=FALSE.
+
+# Requests
+* 
+
+# To Do lists
+* Update data in Google Sheet.
 
 
 ```{r echo = FALSE, message=FALSE}
@@ -14,7 +36,7 @@ http://shiny.rstudio.com/articles/interactive-docs.html
 library(shiny)
 library(ggplot2)  
 library(tidyverse)
-library(reshape2)
+library(reshape2) # I do not think I use this package anymore.
 library(lubridate) # for date/time. Read chap 13 in "R for Data Science" by Wkckham 2016. 
 library(directlabels) # for labeling line with name2 by geom_dl https://stackoverflow.com/questions/37667539/add-text-to-geom-line-in-ggplot?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 
@@ -50,6 +72,7 @@ server<-function(input, output) {
   if(is.null(inFile))
     return(NULL)
   Fig.data <- read.csv(inFile$datapath,header=input$header)
+  # Fig.data <- read.csv("Synchro_Figure_score - record.csv")
   # process Fig.data
   ## separate date data
   Fig.data.s<-Fig.data %>% as_tibble() %>% mutate(DateTime2=mdy(DateTime),year=year(DateTime2))
@@ -81,11 +104,14 @@ server<-function(input, output) {
     # load data created
     load("Fig.data.s.Rdata");load("Fig.data.s.summary.Rdata")
     # combine and calculate age
-      Fig.data.ss<-Fig.data.s %>% left_join(Fig.data.s.summary[,c("name2","born")],by="name2") %>% mutate(age=interval(start=parse_date_time(born, orders = "Y"),end=DateTime2)/dyears(1)) %>% select(-name,-team.abb,-DateTime2,-year)    
+      Fig.data.ss<-Fig.data.s %>% left_join(Fig.data.s.summary[,c("name2","born")],by="name2") %>% mutate(age=interval(start=parse_date_time(born, orders = "Y"),end=DateTime2)/dyears(1)) %>% select(-name,-team.abb,-DateTime2,-year)  
+    # treat name2 and team as one variable (for fixing legend problem with swimmer belong to multiple team)
+      Fig.data.ss <- Fig.data.ss %>% unite(name2.team,name2,team,remove=FALSE)
+      
     # selected data  
     Fig.data.ss.selected<- Fig.data.ss %>% filter(name2 %in% as_vector(Fig.data.s.summary[input$mytable1_rows_selected,"name2"]))
     # geom_dl is used for labeling line with names
-    ggplot(Fig.data.ss.selected,aes(x=age,y=score))  + geom_point() + geom_line(aes(group=name2,color=born,linetype=team),show.legend=c(group=FALSE,color=TRUE,linetype=TRUE))  + 
+    ggplot(Fig.data.ss.selected,aes(x=age,y=score))  + geom_point() + geom_line(aes(group=name2.team,color=born,linetype=team),show.legend=c(group=FALSE,color=TRUE,linetype=TRUE))  + 
       geom_dl(aes(label = name2), method = list(dl.trans(x = x + .1), "smart.grid")) +
       #geom_dl(aes(label = name2), method = list(dl.trans(x = x + .1), "first.points",rot=30)) +
       #      expand_limits(x = as.Date("2018-10-01")) +
