@@ -9,7 +9,7 @@ http://shiny.rstudio.com/articles/interactive-docs.html
 * Usage. Click "Run Document" in RStudio bar for this document. Upload data file "Synchro_Figure_score - record.csv" for example, which can be found in [a Google Sheet with Kazu's permission](https://docs.google.com/spreadsheets/d/1clTOGtDb_YVxVPFGwdAVwa2MIeIPA4hXcbuGHTvACME/edit?usp=sharing).
 
 # Learning R
-* Especially ggplot2 and tidyverse packages, read "R for data science" (2016) Hadley Wickham and Garrett Grolemund (O'reilly)
+* Especially ggplot2 and tidyverse packages, read "R for data science" (2016) Hadley Wickham and Garrett Grolemund (O'reilly). Please find more R-related info and beyound in [Kazu's blog](https://knozue.github.io/).
 
 # Learning RStudio https://www.rstudio.com/
 * Use RStudio DEsktop (free)
