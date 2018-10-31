@@ -77,8 +77,9 @@ function(input, output) {
     Fig.data.s.selected<- Fig.data.s %>% filter(name2 %in% as_vector(Fig.data.s.summary[input$mytable1_rows_selected,"name2"]))
     # geom_dl is used for labeling line with names
     ggplot(Fig.data.s.selected,aes(x=DateTime2,y=score))  + geom_point() + geom_line(aes(group=name2,color=team))  + 
-      geom_dl(aes(label = name2), method = list(dl.trans(x = x + .1), "last.points")) +
-      expand_limits(x = as.Date("2018-10-01")) +
+      geom_dl(aes(label = name2), method = list(dl.trans(x = x + .1), "smart.grid")) +
+      #geom_dl(aes(label = name2), method = list(dl.trans(x = x + .1), "first.points",rot=30)) +
+            expand_limits(x = as.Date("2018-10-01")) +
       theme_bw() + theme(legend.position="none")
       })
   output$plot <- renderPlot({pl()})
