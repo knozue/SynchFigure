@@ -92,6 +92,10 @@ server<-function(input, output) {
       Fig.data.s.summary[Fig.data.s.summary$name2 %in% swimmer2007$name2,"born"]<-"2007"
     # To distinguish 2007 and 2008 based on age group 11-12 in 2016 and 2017
       ##### under construciton ########
+    # Manual edition of born year of known swimmers
+      Fig.data.s.summary["Yamamoto, Mari","born"]<-"2002"
+      Fig.data.s.summary["Yamamoto, Miya","born"]<-"2005"
+      
     # calculate average score per swimmer
       Fig.data.s.summary <- Fig.data.s.summary %>% mutate(average=round(average,2))
       save(Fig.data.s.summary,file="Fig.data.s.summary.Rdata")
