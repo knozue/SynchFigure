@@ -4,6 +4,14 @@ output: html_document
 ---
 
 # Shiny widget (v0.2) for Synchro figure score
+## How to use this?
+step1: Open this by RStudio
+step2: Click "Run Document" and your browser will open a window for this app.
+step3: Upload data csv file ("Synchro_Figure_score - record2.csv")
+step4: Search data from the Table displayed and use sort function by clicking triangles.
+step5: Select row by cliking row and time-course score data will be plotted (x-axis is calculated age (Jan 1 is arbitrary set at birthday))
+
+
 http://shiny.rstudio.com/articles/interactive-docs.html
 * Note1: Check "Preview in Window" or "Preview in a Viewer panel". (No preview) gave me nothing after clicking "Run Document" button above. Near future  shiny_presented will be used instead of shiny in runtime (https://rmarkdown.rstudio.com/authoring_shiny_prerendered.html).
 * Usage. Click "Run Document" in RStudio bar for this document. Upload data file "Synchro_Figure_score - record.csv" for example, which can be found in [a Google Sheet with Kazu's permission](https://docs.google.com/spreadsheets/d/1clTOGtDb_YVxVPFGwdAVwa2MIeIPA4hXcbuGHTvACME/edit?usp=sharing).
@@ -29,6 +37,8 @@ http://shiny.rstudio.com/articles/interactive-docs.html
 
 # To Do lists
 * Update data in Google Sheet.
+* Add "print plot in pdf" button
+* Add "download table" button
 
 
 ```{r echo = FALSE, message=FALSE}
@@ -79,9 +89,9 @@ server<-function(input, output) {
   Fig.data.s<-Fig.data.s %>% mutate(name2=toupper(name),team=toupper(team))
   ## remove unnecessary data
   Fig.data.s <- Fig.data.s %>% filter(!(name2=="MORGAN, RILEY" & year=="2017" & category=="13-15"))
-  ## 
-  Fig.data.s.summary <- Fig.data.s %>% group_by(name2,team) %>% summarise(average=mean(score))
-  save(Fig.data.s, file="Fig.data.s.Rdata")
+  # Adding "born" information (to calculate age) automatically to Fig.data.s
+        ##### under construciton ########
+
   # To distinguish 2006 and 2007 based on age group 11-12 in 2017 and 2018
       swimmer2006<-Fig.data.s %>% filter(year %in% c(2017, 2018), category %in% "11-12",competition %in% c("Invitational Figures San Francisco","West Region B championships")) %>% 
       group_by(name2, competition,category) %>% 
@@ -89,22 +99,23 @@ server<-function(input, output) {
       ungroup() %>% select(name2) %>% unique # attend two times in 11-12 (= born in 2006)
       swimmer2007<-Fig.data.s %>% filter(year==2018,competition %in% c("Invitational Figures San Francisco","West Region B championships")) %>%
       filter(!name2 %in% swimmer2006$name2) %>% select(name2) %>% unique()
-    # input born data into Fig.data.s.summary
-      Fig.data.s.summary$born<-" "
-      Fig.data.s.summary[Fig.data.s.summary$name2 %in% swimmer2006$name2,"born"]<-"2006"
-      Fig.data.s.summary[Fig.data.s.summary$name2 %in% swimmer2007$name2,"born"]<-"2007"
     # To asign 2005 based on moving age group 11-12 in 2017 to 13-15 2018
       swimmer2017_11_12 <- Fig.data.s %>% unite(year.category, year, category, remove=FALSE)  %>%        filter(year.category=="2017_11-12") %>% dplyr::select(name2)
       swimmer2018_13_15 <- Fig.data.s %>% unite(year.category, year, category, remove=FALSE)  %>%        filter(year.category=="2018_13-15") %>% dplyr::select(name2)
       swimmer2005<-swimmer2017_11_12 %>% inner_join(swimmer2018_13_15) %>% unique()
-      Fig.data.s.summary[Fig.data.s.summary$name2 %in% swimmer2005$name2,"born"]<-"2005"
-  
-      ##### under construciton ########
+    # input born data into Fig.data.s.summary
+      Fig.data.s[Fig.data.s$name2 %in% swimmer2005$name2,"born"]<-"2005"
+      Fig.data.s[Fig.data.s$name2 %in% swimmer2006$name2,"born"]<-"2006"
+      Fig.data.s[Fig.data.s$name2 %in% swimmer2007$name2,"born"]<-"2007"
     # Manual edition of born year of known swimmers
-      Fig.data.s.summary[Fig.data.s.summary$name2=="YAMAMOTO, MARI","born"]<-"2002"
-
-    # calculate average score per swimmer
-      Fig.data.s.summary <- Fig.data.s.summary %>% mutate(average=round(average,2))
+      Fig.data.s[Fig.data.s$name2=="YAMAMOTO, MARI","born"]<-"2002"
+    # save
+      save(Fig.data.s, file="Fig.data.s.Rdata")
+    # making summary table, calculate average score, and round up the score
+  Fig.data.s.summary <- Fig.data.s %>% group_by(name2,team) %>% summarise(average=mean(score)) %>% mutate(average=round(average,2)) 
+    # adding born info in Fig.data.s to Fig.data.s.summary
+        Fig.data.s.summary<-Fig.data.s.summary %>%  inner_join(Fig.data.s[!is.na(Fig.data.s$born),c("name2","born")],by="name2") %>% unique()
+    # save
       save(Fig.data.s.summary,file="Fig.data.s.summary.Rdata")
         DT::datatable(Fig.data.s.summary)
   })
@@ -115,10 +126,9 @@ server<-function(input, output) {
     # load data created
     load("Fig.data.s.Rdata");load("Fig.data.s.summary.Rdata")
     # combine and calculate age
-      Fig.data.ss<-Fig.data.s %>% left_join(Fig.data.s.summary[,c("name2","born")],by="name2") %>% mutate(age=interval(start=parse_date_time(born, orders = "Y"),end=DateTime2)/dyears(1)) %>% select(-name,-team.abb,-DateTime2,-year)  
+      Fig.data.ss<-Fig.data.s  %>% select(-born) %>% inner_join(Fig.data.s.summary[,c("name2","born")]) %>% mutate(age=interval(start=parse_date_time(born, orders = "Y"),end=DateTime2)/dyears(1)) %>% select(-name,-team.abb,-DateTime2,-year)  
     # treat name2 and team as one variable (for fixing legend problem with swimmer belong to multiple team)
       Fig.data.ss <- Fig.data.ss %>% unite(name2.team,name2,team,remove=FALSE)
-      
     # selected data  
     Fig.data.ss.selected<- Fig.data.ss %>% filter(name2 %in% as_vector(Fig.data.s.summary[input$mytable1_rows_selected,"name2"]))
     # geom_dl is used for labeling line with names
