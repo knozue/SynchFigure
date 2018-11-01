@@ -96,11 +96,7 @@ server<-function(input, output) {
     # To asign 2005 based on moving age group 11-12 in 2017 to 13-15 2018
       swimmer2017_11_12 <- Fig.data.s %>% unite(year.category, year, category, remove=FALSE)  %>%        filter(year.category=="2017_11-12") %>% dplyr::select(name2)
       swimmer2018_13_15 <- Fig.data.s %>% unite(year.category, year, category, remove=FALSE)  %>%        filter(year.category=="2018_13-15") %>% dplyr::select(name2)
-<<<<<<< HEAD
       swimmer2005<-swimmer2017_11_12 %>% inner_join(swimmer2018_13_15) %>% unique()
-=======
-swimmer2005<-swimmer2017_11_12 %>% inner_join(swimmer2018_13_15) %>% unique()
->>>>>>> cdf10341f97c3570569f685d1a630f930e487a59
       Fig.data.s.summary[Fig.data.s.summary$name2 %in% swimmer2005$name2,"born"]<-"2005"
   
       ##### under construciton ########
