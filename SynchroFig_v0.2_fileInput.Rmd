@@ -72,14 +72,17 @@ server<-function(input, output) {
   if(is.null(inFile))
     return(NULL)
   Fig.data <- read.csv(inFile$datapath,header=input$header)
-  # Fig.data <- read.csv("Synchro_Figure_score - record.csv")
+  # Fig.data <- read.csv("Synchro_Figure_score - record2.csv")
   # process Fig.data
   ## separate date data
   Fig.data.s<-Fig.data %>% as_tibble() %>% mutate(DateTime2=mdy(DateTime),year=year(DateTime2))
   Fig.data.s<-Fig.data.s %>% mutate(name2=toupper(name),team=toupper(team))
+  ## remove unnecessary data
+  Fig.data.s <- Fig.data.s %>% filter(!(name2=="MORGAN, RILEY" & year=="2017" & category=="13-15"))
+  ## 
   Fig.data.s.summary <- Fig.data.s %>% group_by(name2,team) %>% summarise(average=mean(score))
   save(Fig.data.s, file="Fig.data.s.Rdata")
-  # To distinguish 2006 and 2007 based on age group 11-12 in 20117 and 2018
+  # To distinguish 2006 and 2007 based on age group 11-12 in 2017 and 2018
       swimmer2006<-Fig.data.s %>% filter(year %in% c(2017, 2018), category %in% "11-12",competition %in% c("Invitational Figures San Francisco","West Region B championships")) %>% 
       group_by(name2, competition,category) %>% 
       summarise(num=n()) %>% filter(num==2) %>% 
@@ -90,12 +93,16 @@ server<-function(input, output) {
       Fig.data.s.summary$born<-" "
       Fig.data.s.summary[Fig.data.s.summary$name2 %in% swimmer2006$name2,"born"]<-"2006"
       Fig.data.s.summary[Fig.data.s.summary$name2 %in% swimmer2007$name2,"born"]<-"2007"
-    # To distinguish 2007 and 2008 based on age group 11-12 in 2016 and 2017
+    # To asign 2005 based on moving age group 11-12 in 2017 to 13-15 2018
+      swimmer2017_11_12 <- Fig.data.s %>% unite(year.category, year, category, remove=FALSE)  %>%        filter(year.category=="2017_11-12") %>% dplyr::select(name2)
+      swimmer2018_13_15 <- Fig.data.s %>% unite(year.category, year, category, remove=FALSE)  %>%        filter(year.category=="2018_13-15") %>% dplyr::select(name2)
+swimmer2005<-swimmer2017_11_12 %>% inner_join(swimmer2018_13_15) %>% unique()
+      Fig.data.s.summary[Fig.data.s.summary$name2 %in% swimmer2005$name2,"born"]<-"2005"
+  
       ##### under construciton ########
     # Manual edition of born year of known swimmers
-      Fig.data.s.summary["Yamamoto, Mari","born"]<-"2002"
-      Fig.data.s.summary["Yamamoto, Miya","born"]<-"2005"
-      
+      Fig.data.s.summary[Fig.data.s.summary$name2=="YAMAMOTO, MARI","born"]<-"2002"
+
     # calculate average score per swimmer
       Fig.data.s.summary <- Fig.data.s.summary %>% mutate(average=round(average,2))
       save(Fig.data.s.summary,file="Fig.data.s.summary.Rdata")
