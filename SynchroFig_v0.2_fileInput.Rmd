@@ -109,6 +109,8 @@ server<-function(input, output) {
       Fig.data.s[Fig.data.s$name2 %in% swimmer2007$name2,"born"]<-"2007"
     # Manual edition of born year of known swimmers
       Fig.data.s[Fig.data.s$name2=="YAMAMOTO, MARI","born"]<-"2002"
+    # Manual edition of names
+      Fig.data.s %>% mutate(name2=str_replace(name2,"MOORE, EMMA","MOORE, EMILEEN"))
     # save
       save(Fig.data.s, file="Fig.data.s.Rdata")
     # making summary table, calculate average score, and round up the score
