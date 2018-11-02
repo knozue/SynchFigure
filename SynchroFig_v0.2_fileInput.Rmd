@@ -5,10 +5,10 @@ output: html_document
 
 # Shiny widget (v0.2) for Synchro figure score
 ## How to use this?
-step1: Open this by RStudio
-step2: Click "Run Document" and your browser will open a window for this app.
-step3: Upload data csv file ("Synchro_Figure_score - record2.csv")
-step4: Search data from the Table displayed and use sort function by clicking triangles.
+step1: Open this file by RStudio
+step2: Click "Run Document" and your browser will automatically open a window for this app.
+step3: Upload data csv file ("Synchro_Figure_score - record2.csv") and a table with swimmer's name list, team name, and average score, and year borned will be generated.
+step4: Search data from the table displayed and use sort function by clicking triangles.
 step5: Select row by cliking row and time-course score data will be plotted (x-axis is calculated age (Jan 1 is arbitrary set at birthday))
 
 
