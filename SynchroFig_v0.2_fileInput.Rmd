@@ -82,13 +82,17 @@ server<-function(input, output) {
   if(is.null(inFile))
     return(NULL)
   Fig.data <- read.csv(inFile$datapath,header=input$header)
-  # Fig.data <- read.csv("../Synchro_Figure_score - record.csv")
+  # Fig.data <- read.csv("Synchro_Figure_score - record.JO.csv")
   # process Fig.data
   ## separate date data
   Fig.data.s<-Fig.data %>% as_tibble() %>% mutate(DateTime2=mdy(DateTime),year=year(DateTime2))
   Fig.data.s<-Fig.data.s %>% mutate(name2=toupper(name),team=toupper(team))
-  ## remove unnecessary data
+  ## remove unnecessary data (category containing "H" for not belonging that category)
   Fig.data.s <- Fig.data.s %>% filter(!(name2=="MORGAN, RILEY" & year=="2017" & category=="13-15"))
+  #Fig.data.s %>% filter(category==str_match(category,pattern=".+H"))
+   Fig.data.s %>% filter(str_detect(category,pattern=".+H"))
+
+    Fig.data.s <- Fig.data.s %>% filter(!str_detect(category,pattern=".+H"))
   # Adding "born" information (to calculate age) automatically to Fig.data.s
         ##### under construciton ########
 
