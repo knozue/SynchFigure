@@ -68,8 +68,11 @@ ui <- fluidPage(
                   # drawing data table (summary)
                   DT::dataTableOutput("mytable1")),
                   # plot
-                  column(width = 6,plotOutput("plot",height = "900px"))
+                  column(width = 6,plotOutput("plot",height = "900px")),
+                  # download plot button
+                  column(width =3, offset=1,downloadButton("downloadplot",label="Download plot"))
                   )
+                  
   )
 )
 
@@ -91,11 +94,8 @@ server<-function(input, output) {
   Fig.data.s <- Fig.data.s %>% filter(!(name2=="MORGAN, RILEY" & year=="2017" & category=="13-15"))
   #Fig.data.s %>% filter(category==str_match(category,pattern=".+H"))
    Fig.data.s %>% filter(str_detect(category,pattern=".+H"))
-
     Fig.data.s <- Fig.data.s %>% filter(!str_detect(category,pattern=".+H"))
   # Adding "born" information (to calculate age) automatically to Fig.data.s
-        ##### under construciton ########
-
   # To distinguish 2006 and 2007 based on age group 11-12 in 2017 and 2018
       swimmer2006<-Fig.data.s %>% filter(year %in% c(2017, 2018), category %in% "11-12",competition %in% c("Invitational Figures San Francisco","West Region B championships")) %>% 
       group_by(name2, competition,category) %>% 
@@ -145,6 +145,10 @@ server<-function(input, output) {
       theme(legend.position="top") #+ theme_bw()
   })
   output$plot <- renderPlot({pl()})
+  output$downloadplot<-downloadHandler(
+    filename=function() {"plot.pdf"},
+    content=function(x) ggsave(plot=pl(),filename=x,width=11,height=8)
+  )
 }
 # shinyApp function below is necessary for "Run Document" and deploy in shinyapps.io
 shinyApp(ui = ui, server = server,options=list(width=1200,height=900))
