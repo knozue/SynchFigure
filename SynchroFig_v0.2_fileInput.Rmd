@@ -68,7 +68,7 @@ ui <- fluidPage(
                   # drawing data table (summary)
                   DT::dataTableOutput("mytable1")),
                   # plot
-                  column(width = 6,plotOutput("plot",height = "900px")),
+                  column(width = 6,plotOutput("plot",height = "1200px")),
                   # download plot button
                   column(width =3, offset=1,downloadButton("downloadplot",label="Download plot"))
                   )
@@ -86,6 +86,7 @@ server<-function(input, output) {
     return(NULL)
   Fig.data <- read.csv(inFile$datapath,header=input$header)
   # Fig.data <- read.csv("Synchro_Figure_score - record.JO.csv")
+  # Fig.data <- read.csv("../Synchro_Figure_score - record.csv")
   # process Fig.data
   ## separate date data
   Fig.data.s<-Fig.data %>% as_tibble() %>% mutate(DateTime2=mdy(DateTime),year=year(DateTime2))
@@ -147,7 +148,7 @@ server<-function(input, output) {
   output$plot <- renderPlot({pl()})
   output$downloadplot<-downloadHandler(
     filename=function() {"plot.pdf"},
-    content=function(x) ggsave(plot=pl(),filename=x,width=11,height=8)
+    content=function(x) ggsave(plot=pl(),filename=x,width=15,height=20)
   )
 }
 # shinyApp function below is necessary for "Run Document" and deploy in shinyapps.io
